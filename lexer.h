@@ -8,6 +8,8 @@ typedef enum {
 	TOKEN_MINUS,
 	TOKEN_TIMES,
 	TOKEN_OVER,
+	TOKEN_CARET,
+	TOKEN_RADICAL,
 	TOKEN_LPAREN,
 	TOKEN_RPAREN,
 	TOKEN_EOF
@@ -23,5 +25,6 @@ typedef struct {
 
 void init_lexer(const char *text);
 Token get_next_token();
+Token create_token(TokenType type, double value);
 
 #endif

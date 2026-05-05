@@ -80,6 +80,16 @@ Token get_next_token(){
 			advance();
 			return create_token(TOKEN_RPAREN, 0);
 		}
+
+		if(current_char == '^'){
+			advance();
+			return create_token(TOKEN_CARET, 0);
+		}
+
+		if(current_char == 'r'){
+			advance();
+			return create_token(TOKEN_RADICAL, 0);
+		}
 	}
 
 	return create_token(TOKEN_EOF, 0);

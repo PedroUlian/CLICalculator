@@ -1,4 +1,5 @@
 #include "calculator.h"
+#include "math.h"
 
 double evaluate(Node *node){
 
@@ -22,6 +23,12 @@ double evaluate(Node *node){
 
 		case TOKEN_OVER:
 			return left/right;
+
+		case TOKEN_CARET:
+			return pow(left, right);
+
+		case TOKEN_RADICAL:
+			return pow(right, 1.0/left);
 	}
 	return 0;
 }
