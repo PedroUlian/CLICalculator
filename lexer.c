@@ -1,5 +1,7 @@
 #include "lexer.h"
 #include <ctype.h>
+#include "err.h"
+#include <stdio.h>
 
 const char *source;
 int position;
@@ -28,14 +30,26 @@ Token create_token(TokenType type, double value){
 }
 
 Token read_number(){
-	double number = 0;
+    double number = 0;
 
-	while(isdigit(current_char)){
-		number = number*10+(current_char - '0');
-		advance();
-	}
-	
-	return create_token(TOKEN_NUMBER, number);
+    while(isdigit(current_char)){
+        number = number * 10 + (current_char - '0');
+        advance();
+    }
+
+    if(current_char == '.'){
+        advance();
+
+        double decimal_place = 0.1;
+
+        while(isdigit(current_char)){
+            number = number + (current_char - '0') * decimal_place;
+            decimal_place /= 10.0;
+            advance();
+        }
+    }
+    
+    return create_token(TOKEN_NUMBER, number);
 }
 
 Token get_next_token(){
@@ -90,6 +104,13 @@ Token get_next_token(){
 			advance();
 			return create_token(TOKEN_RADICAL, 0);
 		}
+
+		if (current_char != '\0') {
+        last_error = ERROR_INVALID_CHAR;
+        printf("Caractere inesperado: %c\n", current_char);
+        advance();
+        return create_token(TOKEN_EOF, 0);
+    	}
 	}
 
 	return create_token(TOKEN_EOF, 0);
