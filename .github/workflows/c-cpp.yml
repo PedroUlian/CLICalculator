@@ -68,7 +68,7 @@ jobs:
       # Instala Zig
       # =========================
       - name: Setup Zig
-        uses: mlugg/setup-zig@v1
+        uses: korandoru/setup-zig@v1
 
       # =========================
       # Cria pasta build
