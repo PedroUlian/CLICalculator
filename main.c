@@ -48,6 +48,7 @@ int main(int argc, char const *argv[])
 
         while (1) {
             printf("calc> ");
+            fflush(stdout);
 
             if (!fgets(input, sizeof(input), stdin))
                 break;
