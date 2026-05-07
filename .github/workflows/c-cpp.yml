@@ -1,0 +1,104 @@
+name: Build MultiPlatform
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+
+          # =========================
+          # Linux x86_64
+          # =========================
+          - os: ubuntu-latest
+            target: x86_64-linux
+            output: Calc-Linux-X86_64
+
+          # =========================
+          # Linux ARM64
+          # =========================
+          - os: ubuntu-latest
+            target: aarch64-linux
+            output: Calc-Linux-AARCH64
+
+          # =========================
+          # Windows x86_64
+          # =========================
+          - os: ubuntu-latest
+            target: x86_64-windows
+            output: Calc-Windows-X86_64.exe
+
+          # =========================
+          # Windows ARM64
+          # =========================
+          - os: ubuntu-latest
+            target: aarch64-windows
+            output: Calc-Windows-AARCH64.exe
+
+          # =========================
+          # macOS ARM64 (Apple Silicon)
+          # =========================
+          - os: ubuntu-latest
+            target: aarch64-macos
+            output: Calc-MacOS-AARCH64
+
+          # =========================
+          # macOS Intel
+          # =========================
+          - os: ubuntu-latest
+            target: x86_64-macos
+            output: Calc-MacOS-X86_64
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      # =========================
+      # Clona repo
+      # =========================
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # =========================
+      # Instala Zig
+      # =========================
+      - name: Setup Zig
+        uses: mlugg/setup-zig@v1
+
+      # =========================
+      # Cria pasta build
+      # =========================
+      - name: Create build directory
+        run: mkdir -p build
+
+      # =========================
+      # Compila
+      # =========================
+      - name: Build
+        shell: bash
+        run: |
+
+          zig cc \
+            -target ${{ matrix.target }} \
+            calculator.c \
+            err.c \
+            lexer.c \
+            main.c \
+            node.c \
+            parser.c \
+            -o build/${{ matrix.output }} \
+            -lm
+
+      # =========================
+      # Upload artifacts
+      # =========================
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.output }}
+          path: build/${{ matrix.output }}
