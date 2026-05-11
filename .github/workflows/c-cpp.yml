@@ -93,6 +93,7 @@ jobs:
             main.c \
             node.c \
             parser.c \
+            number.c \
             -o build/${{ matrix.output }} \
             -lm
 
