@@ -2,6 +2,6 @@
 #define CALCULATOR_H
 #include "node.h"
 
-double evaluate(Node *node);
+Number evaluate(Node *node);
 
 #endif

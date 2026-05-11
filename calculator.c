@@ -1,39 +1,45 @@
 #include "calculator.h"
+#include "number.h"
 #include "math.h"
 #include "err.h"
+#include <stdlib.h>
 
-double evaluate(Node *node) {
-    if (!node || last_error != ERROR_NONE) return 0;
+Number evaluate(Node *node) {
+    if (!node || last_error != ERROR_NONE) return create_number("0");
 
     if (node->token.type == TOKEN_NUMBER) {
-        return node->token.value;
+        return create_number(node->token.value.number_str);
     }
 
-    double left = evaluate(node->left);
-    double right = evaluate(node->right);
+    Number left = evaluate(node->left);
+    Number right = evaluate(node->right);
+    Number result;
 
     switch(node->token.type) {
+        case TOKEN_PLUS:  result = nadd(left, right); break;
+
+        case TOKEN_MINUS: result = nsub(left, right); break;
+
+        case TOKEN_TIMES: result = nmult(left, right); break;
+
         case TOKEN_OVER:
-            if (right == 0) {
+            if (to_double(right) == 0) {
                 last_error = ERROR_DIV_BY_ZERO;
-                return 0;
+                result = create_number("NaN");
+            } else {
+                result = ndiv(left, right);
             }
-            return left / right;
+            break;
 
-        case TOKEN_CARET:
-			return pow(left, right);
+        case TOKEN_CARET:   result = npow(left, right); break;
 
-		case TOKEN_RADICAL:
-			return pow(right, 1.0/left);
+        case TOKEN_RADICAL: result = nroot(left, right); break;
 
-		case TOKEN_PLUS:
-			return left+right;
-
-		case TOKEN_MINUS:
-			return left-right;
-
-		case TOKEN_TIMES:
-			return left*right;
+        default: result = create_number("0");
     }
-    return 0;
+
+    free(left.number_str);
+    free(right.number_str);
+
+    return result;
 }

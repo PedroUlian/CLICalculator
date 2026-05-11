@@ -1,6 +1,8 @@
 #ifndef LEXER_H
 #define LEXER_H
 
+#include "number.h"
+
 typedef enum {
 
 	TOKEN_NUMBER,
@@ -19,12 +21,12 @@ typedef enum {
 typedef struct {
 
     TokenType type;
-    double value;
+    Number value;
 
 } Token;
 
 void init_lexer(const char *text);
 Token get_next_token();
-Token create_token(TokenType type, double value);
+Token create_token(TokenType type, Number value);
 
 #endif

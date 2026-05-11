@@ -26,13 +26,13 @@ void process_expression(const char *input) {
         return;
     }
 
-    double result = evaluate(tree);
+    Number result = evaluate(tree);
     
     // Verifica se houve erro em tempo de execução (Ex: divisão por zero)
     if (last_error != ERROR_NONE) {
         print_error();
     } else {
-        printf("Resultado: %f\n", result);
+        printf("Resultado: %s\n", result.number_str);
     }
 }
 

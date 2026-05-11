@@ -20,7 +20,7 @@ void advance(){
 	current_char = source[position];
 }
 
-Token create_token(TokenType type, double value){
+Token create_token(TokenType type, Number value){
 
 	Token token;
 	token.type = type;
@@ -29,30 +29,34 @@ Token create_token(TokenType type, double value){
 
 }
 
-Token read_number(){
-    double number = 0;
+Token read_number() {
+    char buffer[256];
+    int i = 0;
 
-    while(isdigit(current_char)){
-        number = number * 10 + (current_char - '0');
+    while (isdigit(current_char)) {
+        if (i < 255) buffer[i++] = current_char;
         advance();
     }
 
-    if(current_char == '.'){
+    if (current_char == '.') {
+        if (i < 255) buffer[i++] = current_char;
         advance();
 
-        double decimal_place = 0.1;
-
-        while(isdigit(current_char)){
-            number = number + (current_char - '0') * decimal_place;
-            decimal_place /= 10.0;
+        while (isdigit(current_char)) {
+            if (i < 255) buffer[i++] = current_char;
             advance();
         }
     }
-    
-    return create_token(TOKEN_NUMBER, number);
+
+    buffer[i] = '\0';
+
+    Number n = create_number(buffer);
+    return create_token(TOKEN_NUMBER, n);
+
 }
 
 Token get_next_token(){
+	Number null_num = { .number_str = NULL };
 
 	while(current_char != '\0'){
 
@@ -67,52 +71,52 @@ Token get_next_token(){
 
 		if(current_char == '+'){
 			advance();
-			return create_token(TOKEN_PLUS, 0);
+			return create_token(TOKEN_PLUS, null_num);
 		}
 
 		if(current_char == '-'){
 			advance();
-			return create_token(TOKEN_MINUS, 0);
+			return create_token(TOKEN_MINUS, null_num);
 		}
 
 		if(current_char == '*'){
 			advance();
-			return create_token(TOKEN_TIMES, 0);
+			return create_token(TOKEN_TIMES, null_num);
 		}
 
 		if(current_char == '/'){
 			advance();
-			return create_token(TOKEN_OVER, 0);
+			return create_token(TOKEN_OVER, null_num);
 		}
 
 		if(current_char == '('){
 			advance();
-			return create_token(TOKEN_LPAREN, 0);
+			return create_token(TOKEN_LPAREN, null_num);
 		}
 
 		if(current_char == ')'){
 			advance();
-			return create_token(TOKEN_RPAREN, 0);
+			return create_token(TOKEN_RPAREN, null_num);
 		}
 
 		if(current_char == '^'){
 			advance();
-			return create_token(TOKEN_CARET, 0);
+			return create_token(TOKEN_CARET, null_num);
 		}
 
 		if(current_char == 'r'){
 			advance();
-			return create_token(TOKEN_RADICAL, 0);
+			return create_token(TOKEN_RADICAL, null_num);
 		}
 
 		if (current_char != '\0') {
         last_error = ERROR_INVALID_CHAR;
         printf("Caractere inesperado: %c\n", current_char);
         advance();
-        return create_token(TOKEN_EOF, 0);
+        return create_token(TOKEN_EOF, null_num);
     	}
 	}
 
-	return create_token(TOKEN_EOF, 0);
+	return create_token(TOKEN_EOF, null_num);
 
 }
