@@ -52,25 +52,22 @@ Node *parse_factor(){
 
 Node *parse_power();
 Node *parse_unary(){
-    Number null_num = { .number_str = NULL };
-    
     if (last_error != ERROR_NONE) return NULL;
 
     if(current_token.type == TOKEN_MINUS ||
        current_token.type == TOKEN_PLUS)
     {
         Token op_token = current_token;
-
         eat(op_token.type);
 
         Node *right = parse_unary();
-
+        
+        Number zero_num = create_number("0"); 
         Node *zero = create_node(
-            create_token(TOKEN_NUMBER, null_num)
+            create_token(TOKEN_NUMBER, zero_num)
         );
 
         Node *op = create_node(op_token);
-
         op->left = zero;
         op->right = right;
 
