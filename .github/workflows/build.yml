@@ -37,7 +37,6 @@ jobs:
           IFS='|' read -r folder target system suffix <<< "$t"
           echo "--- Compilando para $folder ($target) ---"
           
-          # Configuração usando o Zig como compilador C e vinculador de arquivos (AR)
           cmake -G "Unix Makefiles" -B "build-$folder" \
             -DCMAKE_SYSTEM_NAME="$system" \
             -DCMAKE_CROSSCOMPILING=ON \
@@ -47,10 +46,15 @@ jobs:
             -DCMAKE_AR="$ZIG_PATH" \
             -DCMAKE_NM="$ZIG_PATH nm" \
             -DCMAKE_RANLIB="$ZIG_PATH ranlib" \
+            -DCMAKE_C_ARCHIVE_CREATE="<CMAKE_AR> rc <TARGET> <LINK_FLAGS> <OBJECTS>" \
+            -DCMAKE_C_ARCHIVE_FINISH="<CMAKE_RANLIB> <TARGET>" \
             -DCMAKE_C_COMPILER_WORKS=1 \
             -DCMAKE_EXECUTABLE_SUFFIX="$suffix"
           
           cmake --build "build-$folder" --config Release
+          
+          cp "build-$folder/calc$suffix" "artifacts/calc-$folder$suffix"
+        done
           
           # Organiza o binário final na pasta de artefatos
           cp "build-$folder/calc$suffix" "artifacts/calc-$folder$suffix"
