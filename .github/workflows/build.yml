@@ -21,6 +21,7 @@ jobs:
     - name: Build All Platforms
       run: |
         mkdir -p artifacts
+        ZIG_PATH=$(which zig)
 
         # Lista de alvos: "Pasta|Target_Zig|Sistema_CMake|Sufixo"
         targets=(
@@ -40,12 +41,12 @@ jobs:
           cmake -G "Unix Makefiles" -B "build-$folder" \
             -DCMAKE_SYSTEM_NAME="$system" \
             -DCMAKE_CROSSCOMPILING=ON \
-            -DCMAKE_C_COMPILER="zig" \
+            -DCMAKE_C_COMPILER="$ZIG_PATH" \
             -DCMAKE_C_COMPILER_ARG1="cc" \
             -DCMAKE_C_FLAGS="-target $target" \
-            -DCMAKE_AR="zig" \
-            -DCMAKE_NM="zig nm" \
-            -DCMAKE_RANLIB="zig ranlib" \
+            -DCMAKE_AR="$ZIG_PATH" \
+            -DCMAKE_NM="$ZIG_PATH nm" \
+            -DCMAKE_RANLIB="$ZIG_PATH ranlib" \
             -DCMAKE_C_COMPILER_WORKS=1 \
             -DCMAKE_EXECUTABLE_SUFFIX="$suffix"
           
