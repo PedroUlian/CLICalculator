@@ -1,0 +1,68 @@
+name: Cross-Platform Build with Zig
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Zig
+      uses: goto-bus-stop/setup-zig@v2
+      with:
+        version: 0.13.0 # Use a versão que você tem (0.13.0 é a estável atual)
+
+    - name: Install Dependencies (mpdecimal source)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libmpdec-dev
+
+    - name: Build All Platforms
+      run: |
+        # Criar diretório para os artefatos finais
+        mkdir -p artifacts
+
+        # Lista de targets (Sistemas e Arquiteturas)
+        # Formato: "nome_pasta|target_zig|sistema_cmake|sufixo"
+        targets=(
+          "linux-x64|x86_64-linux-gnu|Linux|"
+          "linux-arm64|aarch64-linux-gnu|Linux|"
+          "win-x64|x86_64-windows-gnu|Windows|.exe"
+          "win-arm64|aarch64-windows-gnu|Windows|.exe"
+          "mac-x64|x86_64-macos-none|Darwin|"
+          "mac-arm64|aarch64-macos-none|Darwin|"
+        )
+
+        for t in "${targets[@]}"; do
+          IFS='|' read -r folder target system suffix <<< "$t"
+          echo "--- Building for $folder ($target) ---"
+          
+          cmake -G "Unix Makefiles" -B "build-$folder" \
+            -DCMAKE_SYSTEM_NAME="$system" \
+            -DCMAKE_CROSSCOMPILING=ON \
+            -DCMAKE_C_COMPILER="zig" \
+            -DCMAKE_C_COMPILER_ARG1="cc" \
+            -DCMAKE_C_FLAGS="-target $target" \
+            -DCMAKE_AR="zig" \
+            -DCMAKE_NM="zig nm" \
+            -DCMAKE_RANLIB="zig ranlib" \
+            -DCMAKE_C_COMPILER_WORKS=1 \
+            -DCMAKE_EXECUTABLE_SUFFIX="$suffix"
+          
+          cmake --build "build-$folder" --config Release
+          
+          # Copia o binário gerado para a pasta de artefatos
+          cp "build-$folder/calc$suffix" "artifacts/calc-$folder$suffix"
+        done
+
+    - name: Upload Binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: calculator-multiplatform
+        path: artifacts/*
