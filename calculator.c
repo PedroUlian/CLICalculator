@@ -1,8 +1,8 @@
 #include "calculator.h"
 #include "number.h"
-#include "math.h"
 #include "err.h"
 #include <stdlib.h>
+#include <string.h>
 
 Number evaluate(Node *node) {
     if (!node || last_error != ERROR_NONE) return create_number("0");
@@ -23,13 +23,13 @@ Number evaluate(Node *node) {
         case TOKEN_TIMES: result = nmult(left, right); break;
 
         case TOKEN_OVER:
-            if (to_double(right) == 0) {
-                last_error = ERROR_DIV_BY_ZERO;
-                result = create_number("NaN");
-            } else {
-                result = ndiv(left, right);
-            }
-            break;
+            if (strcmp(right.number_str, "0") == 0 || strcmp(right.number_str, "0.0") == 0) {
+                    last_error = ERROR_DIV_BY_ZERO;
+                    result = create_number("NaN");
+                } else {
+                    result = ndiv(left, right);
+                }
+                break;
 
         case TOKEN_CARET:   result = npow(left, right); break;
 
