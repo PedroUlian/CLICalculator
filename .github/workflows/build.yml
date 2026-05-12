@@ -1,4 +1,4 @@
-name: Cross-Platform Build with Zig
+name: Cross-Platform Build (Zig + Static libmpdec)
 
 on:
   push:
@@ -16,20 +16,13 @@ jobs:
     - name: Setup Zig
       uses: goto-bus-stop/setup-zig@v2
       with:
-        version: 0.13.0 # Use a versão que você tem (0.13.0 é a estável atual)
-
-    - name: Install Dependencies (mpdecimal source)
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y libmpdec-dev
+        version: 0.13.0
 
     - name: Build All Platforms
       run: |
-        # Criar diretório para os artefatos finais
         mkdir -p artifacts
 
-        # Lista de targets (Sistemas e Arquiteturas)
-        # Formato: "nome_pasta|target_zig|sistema_cmake|sufixo"
+        # Lista de alvos: "Pasta|Target_Zig|Sistema_CMake|Sufixo"
         targets=(
           "linux-x64|x86_64-linux-gnu|Linux|"
           "linux-arm64|aarch64-linux-gnu|Linux|"
@@ -41,8 +34,9 @@ jobs:
 
         for t in "${targets[@]}"; do
           IFS='|' read -r folder target system suffix <<< "$t"
-          echo "--- Building for $folder ($target) ---"
+          echo "--- Compilando para $folder ($target) ---"
           
+          # Configuração usando o Zig como compilador C e vinculador de arquivos (AR)
           cmake -G "Unix Makefiles" -B "build-$folder" \
             -DCMAKE_SYSTEM_NAME="$system" \
             -DCMAKE_CROSSCOMPILING=ON \
@@ -57,12 +51,12 @@ jobs:
           
           cmake --build "build-$folder" --config Release
           
-          # Copia o binário gerado para a pasta de artefatos
+          # Organiza o binário final na pasta de artefatos
           cp "build-$folder/calc$suffix" "artifacts/calc-$folder$suffix"
         done
 
     - name: Upload Binaries
       uses: actions/upload-artifact@v4
       with:
-        name: calculator-multiplatform
+        name: multiplatform-binaries
         path: artifacts/*
