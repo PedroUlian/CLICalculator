@@ -36,21 +36,20 @@ jobs:
           IFS='|' read -r folder target system suffix <<< "$t"
           echo "--- Compilando para $folder ($target) ---"
           
-          # Removendo pastas de build antigas para evitar cache sujo
           rm -rf "build-$folder"
 
           cmake -G "Unix Makefiles" -B "build-$folder" \
             -DCMAKE_SYSTEM_NAME="$system" \
-            -DCMAKE_CROSSCOMPILING=ON \
             -DCMAKE_C_COMPILER="$ZIG_PATH" \
-            -DCMAKE_C_COMPILER_ARG1="cc" \
-            -DCMAKE_C_FLAGS="-target $target" \
+            -DCMAKE_C_COMPILER_ARG1="cc;-target;$target" \
             -DCMAKE_AR="$ZIG_PATH" \
-            -DCMAKE_NM="$ZIG_PATH nm" \
-            -DCMAKE_RANLIB="$ZIG_PATH ranlib" \
-            -DCMAKE_C_ARCHIVE_CREATE="<CMAKE_AR> rc <TARGET> <OBJECTS>" \
-            -DCMAKE_C_ARCHIVE_APPEND="<CMAKE_AR> r <TARGET> <OBJECTS>" \
-            -DCMAKE_C_ARCHIVE_FINISH="<CMAKE_RANLIB> <TARGET>" \
+            -DCMAKE_NM="$ZIG_PATH" \
+            -DCMAKE_RANLIB="$ZIG_PATH" \
+            -DCMAKE_C_COMPILER_AR="$ZIG_PATH" \
+            -DCMAKE_C_COMPILER_RANLIB="$ZIG_PATH" \
+            -DCMAKE_NM_FLAGS="nm" \
+            -DCMAKE_AR_FLAGS="ar;rc" \
+            -DCMAKE_RANLIB_FLAGS="ranlib" \
             -DCMAKE_C_COMPILER_WORKS=1 \
             -DCMAKE_EXECUTABLE_SUFFIX="$suffix"
           
