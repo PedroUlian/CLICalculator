@@ -44,7 +44,7 @@ int main(int argc, char const *argv[])
     }
     else {
         // Modo interativo (REPL)
-        char input[256];
+        char input[4096];
 
         while (1) {
             printf("calc> ");
