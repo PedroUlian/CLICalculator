@@ -30,20 +30,20 @@ Token create_token(TokenType type, Number value){
 }
 
 Token read_number() {
-    char buffer[256];
+    char buffer[4096];
     int i = 0;
 
     while (isdigit(current_char)) {
-        if (i < 255) buffer[i++] = current_char;
+        if (i < 4095) buffer[i++] = current_char;
         advance();
     }
 
     if (current_char == '.') {
-        if (i < 255) buffer[i++] = current_char;
+        if (i < 4095) buffer[i++] = current_char;
         advance();
 
         while (isdigit(current_char)) {
-            if (i < 255) buffer[i++] = current_char;
+            if (i < 4095) buffer[i++] = current_char;
             advance();
         }
     }
