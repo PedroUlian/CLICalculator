@@ -6,12 +6,18 @@
 #include "mpdecimal.h"
 
 int is_str_zero(const char* s) {
-    if (!s) return 1;
+    if (!s || *s == '\0') return 1;
+    
+    // Ignora sinal
+    if (*s == '-' || *s == '+') s++;
+    
+    int has_digits = 0;
     while (*s) {
-        if (*s >= '1' && *s <= '9') return 0;
+        if (*s >= '1' && *s <= '9') return 0; // Tem número != 0
+        if (*s >= '0' && *s <= '9') has_digits = 1;
         s++;
     }
-    return 1;
+    return has_digits; // Só é zero se tiver algum dígito e nenhum for 1-9
 }
 
 void setup_context(mpd_context_t *ctx, Number n1, Number n2, int force_low_prec) {
@@ -31,10 +37,20 @@ void setup_context(mpd_context_t *ctx, Number n1, Number n2, int force_low_prec)
 }
 
 static Number finalize_number(mpd_t *result, mpd_context_t *ctx) {
+    ctx->status &= ~MPD_Inexact;
+    ctx->status &= ~MPD_Underflow;
+
     mpd_reduce(result, result, ctx);
     
     Number n;
-    n.number_str = mpd_to_sci(result, 1); 
+
+    mpd_ssize_t exp = mpd_adjexp(result);
+
+    if (exp <= 15 && exp >= -6) {
+        n.number_str = mpd_to_sci(result, 0); 
+    } else {
+        n.number_str = mpd_to_sci(result, 1);
+    }
     
     return n;
 }
@@ -209,5 +225,35 @@ Number npow(Number num1, Number num2){
     mpd_del(b);
     mpd_del(result);
 
+    return n;
+}
+
+Number nexp(Number num1, Number num2) {
+    mpd_context_t ctx;
+    setup_context(&ctx, num1, num2, 0);
+    ctx.traps = 0;
+    ctx.status = 0;
+
+    mpd_t *ten = mpd_new(&ctx);
+    mpd_t *expoente = mpd_new(&ctx);
+    mpd_t *num_original = mpd_new(&ctx);
+    mpd_t *dez_elevado = mpd_new(&ctx);
+    mpd_t *result = mpd_new(&ctx);
+
+    mpd_set_string(ten, "10", &ctx);
+    mpd_set_string(expoente, num2.number_str, &ctx);
+    mpd_set_string(num_original, num1.number_str, &ctx);
+
+    // 1. Faz 10 ^ num2
+    mpd_pow(dez_elevado, ten, expoente, &ctx);
+    
+    // 2. Faz num1 * (10 ^ num2)
+    mpd_mul(result, num_original, dez_elevado, &ctx);
+
+    Number n = finalize_number(result, &ctx);
+
+    mpd_del(ten); mpd_del(expoente); 
+    mpd_del(num_original); mpd_del(dez_elevado); mpd_del(result);
+    
     return n;
 }

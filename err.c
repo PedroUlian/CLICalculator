@@ -23,6 +23,9 @@ void print_error() {
         case ERROR_UNBALANCED_PAREN:
             printf("Parenteses nao balanceados (abertos ou fechados incorretamente).");
             break;
+        case ERROR_INVALID_EXPONENT:
+            printf("O expoente deve ser um inteiro.");
+            break;
         case ERROR_UNDEFINED_NODE:
             printf("Operacao ou no nao definido na arvore de expressao.");
             break;

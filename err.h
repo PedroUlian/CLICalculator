@@ -7,6 +7,7 @@ typedef enum {
     ERROR_DIV_BY_ZERO,     // Ex: "5 / 0"
     ERROR_INVALID_CHAR,    // Ex: "5 @ 2"
     ERROR_UNBALANCED_PAREN, // Ex: "(5 + 2"
+    ERROR_INVALID_EXPONENT, // Ex: "5e2.2"
     ERROR_UNDEFINED_NODE
 } CalcError;
 

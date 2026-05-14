@@ -109,6 +109,11 @@ Token get_next_token(){
 			return create_token(TOKEN_RADICAL, null_num);
 		}
 
+		if(current_char == 'e'){
+			advance();
+			return create_token(TOKEN_EXP, null_num);
+		}
+
 		if (current_char != '\0') {
         last_error = ERROR_INVALID_CHAR;
         printf("Caractere inesperado: %c\n", current_char);

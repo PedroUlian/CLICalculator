@@ -24,30 +24,44 @@ int eat(TokenType type){
 }
 
 Node *parse_expression_internal();
+Node *parse_unary();
 Node *parse_factor(){
     if (last_error != ERROR_NONE) return NULL;
-	if(current_token.type == TOKEN_NUMBER){
-		Node *node = create_node(current_token);
-		eat(TOKEN_NUMBER);
-		return node;
-	}
+    
+    Node *node = NULL;
 
-	if(current_token.type == TOKEN_LPAREN){
-
+    // 1. Pega o número base ou o parênteses
+    if(current_token.type == TOKEN_NUMBER){
+        node = create_node(current_token);
+        eat(TOKEN_NUMBER);
+    } 
+    else if(current_token.type == TOKEN_LPAREN){
         eat(TOKEN_LPAREN);
-        Node *node = parse_expression_internal();
-
+        node = parse_expression_internal();
         if (current_token.type != TOKEN_RPAREN) {
             last_error = ERROR_UNBALANCED_PAREN;
             return node;
         }
-
         eat(TOKEN_RPAREN);
-        return node;
+    } 
+    else {
+        last_error = ERROR_SYNTAX;
+        return NULL;
     }
 
-    last_error = ERROR_SYNTAX;
-	return NULL;
+    if (current_token.type == TOKEN_EXP) {
+        Token op_token = current_token;
+        eat(TOKEN_EXP);
+
+        Node *right = parse_unary(); 
+        
+        Node *op = create_node(op_token);
+        op->left = node;
+        op->right = right;
+        return op;
+    }
+
+    return node;
 }
 
 Node *parse_power();
@@ -103,27 +117,27 @@ Node *parse_power(){
 }
 
 Node *parse_term(){
-	Node *left = parse_unary();
+    Node *left = parse_unary();
     if (!left || last_error != ERROR_NONE) return NULL;
 
-	while(current_token.type == TOKEN_TIMES || current_token.type == TOKEN_OVER){
-		Token op_token = current_token;
+    while(current_token.type == TOKEN_TIMES || current_token.type == TOKEN_OVER){
+        Token op_token = current_token;
 
-		eat(current_token.type);
+        eat(current_token.type);
         if (last_error != ERROR_NONE) return left;
 
-		Node *right = parse_unary();
+        Node *right = parse_unary();
         if (!right || last_error != ERROR_NONE) return left;
 
-		Node *op = create_node(op_token);
+        Node *op = create_node(op_token);
 
-		op->left = left;
-		op->right = right;
+        op->left = left;
+        op->right = right;
 
-		left = op;
-	}
+        left = op;
+    }
 
-	return left;
+    return left;
 }
 
 Node *parse_expression_internal(){

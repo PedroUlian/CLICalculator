@@ -12,5 +12,7 @@ Number nmult(Number num1, Number num2);
 Number ndiv(Number num1, Number num2);
 Number nroot(Number num1, Number num2);
 Number npow(Number num1, Number num2);
+Number nexp(Number num1, Number num2);
+int is_str_zero(const char* s);
 
 #endif
