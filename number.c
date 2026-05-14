@@ -32,7 +32,7 @@ void setup_context(mpd_context_t *ctx, Number n1, Number n2, int force_low_prec)
         ctx->prec = (d1 > d2 ? d1 : d2) + d2 + 2; 
         
         if (ctx->prec < 256) ctx->prec = 256;
-        if (ctx->prec > 1000000) ctx->prec = 1000000;
+        if (ctx->prec > MPD_MAX_PREC) ctx->prec = MPD_MAX_PREC;
     }
 }
 
